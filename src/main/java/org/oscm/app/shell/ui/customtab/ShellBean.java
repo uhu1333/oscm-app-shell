@@ -42,6 +42,7 @@ public class ShellBean implements Serializable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ShellBean.class);
   private static final String EMPTY_JSON_DATA = "Empty 'data' field in resulting json";
+  private static final String BASE64_RESULT_TAG = "base64:";
 
   private String subscriptionId;
   private String organizationId;
@@ -116,7 +117,12 @@ public class ShellBean implements Serializable {
       if (STATUS_OK.equals(result.getStatus())) {
         Optional<ShellResultData> data = result.getData();
         if (data.isPresent()) {
-          return data.get().getOutput();
+         		String output_result = new String(data.get().getOutput());
+			      if (output_result.startsWith(BASE64_RESULT_TAG)) {
+				      return new String(Base64.decodeBase64(output_result.substring(BASE64_RESULT_TAG.length())));
+			      } else  {
+				      return output_result;
+		        }
         }
 
         LOGGER.error(EMPTY_JSON_DATA);
